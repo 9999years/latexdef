@@ -1,4 +1,12 @@
+use ansi_term::{
+    Color::{Black, Blue, Purple, White, Yellow},
+    Style as TermStyle,
+};
 use clap::{clap_app, App, ArgMatches};
+use syntect::easy::HighlightLines;
+use syntect::highlighting::{Style, ThemeSet};
+use syntect::parsing::SyntaxSet;
+use syntect::util::{as_24_bit_terminal_escaped, LinesWithEndings};
 
 use latexdef::document::DocumentConfig;
 use latexdef::run::{LatexJob, RunError};
@@ -27,11 +35,35 @@ fn clap<'a, 'b>() -> App<'a, 'b> {
 
 fn main() -> Result<(), RunError> {
     let matches = clap().get_matches();
+
+    let ps = SyntaxSet::load_defaults_newlines();
+    let ts = ThemeSet::load_defaults();
+
+    let syntax = ps.find_syntax_by_extension("tex").unwrap();
+    let mut h = HighlightLines::new(syntax, &ts.themes["base16-eighties.dark"]);
+
     let output = DocumentConfig::from(matches).run()?;
-    let mut job = LatexJob::default();
-    for line in output.lines() {
-        if job.should_display(line) {
-            println!("{}", line);
+    let job = LatexJob::new(&output);
+    for cmd in job {
+        if cmd.is_primitive() {
+            println!("{} is primitive.", Purple.bold().paint(&cmd.name),);
+        } else if cmd.is_defined() {
+            print!(
+                "{} {} ",
+                Blue.bold().paint(&cmd.name),
+                Black.bold().paint("=")
+            );
+            if cmd.has_parameters() {
+                print!(
+                    "{}{}",
+                    TermStyle::new().bold().paint(&cmd.parameters),
+                    Black.bold().paint(" -> ")
+                );
+            }
+            println!("{}", cmd.definition);
+        } else {
+            let name = Yellow.paint(&cmd.name);
+            println!("{} {}", name, Black.bold().paint("is undefined"));
         }
     }
     Ok(())
