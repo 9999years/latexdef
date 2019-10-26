@@ -3,6 +3,10 @@ use std::process::ExitStatus;
 use std::str::Lines;
 use std::string::FromUtf8Error;
 
+use ansi_term::{
+    Color::{Black, Blue, Purple, Yellow},
+    Style as TermStyle,
+};
 use lazy_static::lazy_static;
 use quick_error::quick_error;
 use regex::Regex;
@@ -84,7 +88,7 @@ impl Default for LineKind {
 pub struct TexCommand {
     // The name, including the backslash.
     pub name: String,
-    kind: String,
+    pub kind: String,
     // The parameters, i.e. #1#2#3
     pub parameters: String,
     // The definition, or expansion text.
@@ -92,8 +96,8 @@ pub struct TexCommand {
 }
 
 impl TexCommand {
-    pub fn is_defined(&self) -> bool {
-        !self.definition.is_empty()
+    pub fn is_undefined(&self) -> bool {
+        self.definition.is_empty() && (self.kind == "\\relax." && self.name != "\\relax")
     }
 
     pub fn is_primitive(&self) -> bool {
@@ -110,6 +114,7 @@ pub struct LatexJob<'a> {
     lines: Lines<'a>,
     line: LineKind,
     current: TexCommand,
+    verbose: bool,
 }
 
 impl<'a> LatexJob<'a> {
@@ -118,7 +123,13 @@ impl<'a> LatexJob<'a> {
             lines: s.lines(),
             line: LineKind::Ignore,
             current: TexCommand::default(),
+            verbose: false,
         }
+    }
+
+    pub fn verbose(&mut self, is_verbose: bool) -> &mut Self {
+        self.verbose = is_verbose;
+        self
     }
 }
 
@@ -127,6 +138,9 @@ impl<'a> Iterator for LatexJob<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let line = self.lines.next()?;
+        if self.verbose {
+            println!("{}", Black.bold().paint(line));
+        }
         if line.starts_with("<recently read>") {
             // Finished with this definition, return.
             self.line = LineKind::Ignore;
@@ -149,7 +163,7 @@ impl<'a> Iterator for LatexJob<'a> {
             self.line = LineKind::MacroName;
             self.current = TexCommand {
                 name: caps.get(1).unwrap().as_str().into(),
-                kind: caps.get(2).unwrap().as_str().into(),
+                kind: caps.get(2).unwrap().as_str().trim_end_matches(':').into(),
                 ..Default::default()
             };
             self.next()

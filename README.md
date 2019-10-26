@@ -32,3 +32,7 @@ Further:
 
     ARGS:
         <COMMAND>...    Commands to show definitions of
+
+Install with:
+
+    cargo install latexdef
