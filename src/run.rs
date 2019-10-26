@@ -5,7 +5,7 @@ use std::string::FromUtf8Error;
 
 use lazy_static::lazy_static;
 use quick_error::quick_error;
-use regex::{Match, Regex};
+use regex::Regex;
 
 lazy_static! {
     static ref AUX_FILE: Regex = {
