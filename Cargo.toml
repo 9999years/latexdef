@@ -1,0 +1,21 @@
+[package]
+name = "latexdef"
+version = "0.1.0"
+authors = ["Rebecca Turner <rbt@sent.as>"]
+edition = "2018"
+
+[dependencies]
+indoc = "0.3.4"
+clap = "2.33.0"
+nom = "5.0.1"
+regex = "1.3.1"
+lazy_static = "1.4.0"
+quick-error = "1.2.2"
+
+[lib]
+name = "latexdef"
+path = "src/lib.rs"
+
+[[bin]]
+name = "latexdef"
+path = "src/main.rs"
