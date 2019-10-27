@@ -44,8 +44,11 @@ impl DocumentConfig {
             }
         }
         if self.expl3 {
-            ret.push_str("\\usepackage{expl3}\n\\ExplSyntaxOn\n")
+            ret.push_str("\\usepackage{expl3}\n\\ExplSyntaxOn\n");
         }
+        // Helps get the log messages out of the way, so we can be (more) sure that the macro line
+        // will actually start with a *> like it's supposed to.
+        ret.push_str("\n\n\n\n\n\n\n\n\n");
         for command in &self.commands {
             ret.push_str(&format!(
                 "\\expandafter\\show\\csname {}\\endcsname\n\n",

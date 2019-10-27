@@ -17,7 +17,7 @@ fn is_file(s: String) -> Result<(), String> {
 
 fn clap<'a, 'b>() -> App<'a, 'b> {
     clap_app!(latexdef =>
-        (version: "0.1.0")
+        (version: "0.3.0")
         (author: "Rebecca Turner <rbt@sent.as>")
         (about: "Prints definitions of LaTeX macros.")
         (@arg VERBOSE: --verbose "Print verbose output")
