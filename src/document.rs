@@ -9,12 +9,19 @@ use clap::ArgMatches;
 use crate::package::Package;
 use crate::run::RunError;
 
+pub enum DocumentContext {
+    Prelude,
+    Document,
+}
+
 pub struct DocumentConfig {
     pub engine: String,
     pub documentclass: Option<String>,
     pub packages: Vec<Package>,
     pub commands: Vec<String>,
     pub expl3: bool,
+    /// Where in the document do we want to examine the definition?
+    pub context: DocumentContext,
 }
 
 impl Default for DocumentConfig {
@@ -25,6 +32,7 @@ impl Default for DocumentConfig {
             packages: Vec::new(),
             commands: Vec::new(),
             expl3: false,
+            context: DocumentContext::Prelude,
         }
     }
 }
@@ -32,10 +40,10 @@ impl Default for DocumentConfig {
 impl DocumentConfig {
     pub fn render(&self) -> String {
         let mut ret = String::new();
+        let mut at_input_end = Vec::new();
         if let Some(dc) = &self.documentclass {
             ret.push_str(&format!("\\documentclass{{{}}}\n", dc));
         }
-        ret.push_str("\\makeatletter\n");
         for package in &self.packages {
             if let Some(opts) = &package.options {
                 ret.push_str(&format!("\\usepackage[{}]{{{}}}\n", opts, package.name));
@@ -45,21 +53,28 @@ impl DocumentConfig {
         }
         if self.expl3 {
             ret.push_str("\\usepackage{expl3}\n\\ExplSyntaxOn\n");
+            at_input_end.push("\\ExplSyntaxOff\n");
         }
         // Helps get the log messages out of the way, so we can be (more) sure that the macro line
         // will actually start with a *> like it's supposed to.
         ret.push_str("\n\n\n\n\n\n\n\n\n");
+        match self.context {
+            DocumentContext::Prelude => at_input_end.push("\\begin{document}\n"),
+            DocumentContext::Document => ret.push_str("\\begin{document}\n"),
+        }
+        at_input_end.push("\\end{document}\n");
         for command in &self.commands {
             ret.push_str(&format!(
                 "\\expandafter\\show\\csname {}\\endcsname\n\n",
                 command
             ));
         }
-        ret.push_str("\\makeatother\n");
-        if self.expl3 {
-            ret.push_str("\\ExplSyntaxOff\n")
+        for s in at_input_end {
+            ret.push_str(s);
         }
-        ret.push_str("\\begin{document}\n\\end{document}\n\n");
+        if let DocumentContext::Prelude = self.context {
+            ret.push_str("\\begin{document}\n")
+        }
         ret
     }
 
@@ -114,6 +129,10 @@ impl<'a> From<ArgMatches<'a>> for DocumentConfig {
             expl3: matches.is_present("EXPL3"),
             ..Default::default()
         };
+
+        if matches.is_present("IN_DOCUMENT") {
+            doc.context = DocumentContext::Document;
+        }
 
         if matches.is_present("MATH") {
             // Add common mathematical packages.

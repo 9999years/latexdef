@@ -5,25 +5,19 @@ use ansi_term::{
 use clap::{clap_app, App};
 
 use latexdef::document::DocumentConfig;
+use latexdef::pretty_print::PrettyPrinter;
 use latexdef::run::{LatexJob, RunError};
-
-fn is_file(s: String) -> Result<(), String> {
-    if s.ends_with(".tex") || s.ends_with(".sty") || s.ends_with(".cls") {
-        Ok(())
-    } else {
-        Err("".into())
-    }
-}
 
 fn clap<'a, 'b>() -> App<'a, 'b> {
     clap_app!(latexdef =>
-        (version: "0.3.0")
+        (version: "0.4.0")
         (author: "Rebecca Turner <rbt@sent.as>")
         (about: "Prints definitions of LaTeX macros.")
         (@arg VERBOSE: --verbose "Print verbose output")
         (@arg ENGINE: --engine <ENGINE> default_value[latex] "TeX engine to run")
         (@arg DOCUMENTCLASS: --documentclass <CLASS> default_value[article] "Document class to use")
         (@arg EXPL3: -e --expl3 "Enable LaTeX3e features with the expl3 package")
+        (@arg IN_DOCUMENT: -d --("in-document") "Enable LaTeX3e features with the expl3 package")
         (@arg MATH: --math "Load common math packages (amsmath, amssymb, amsthm, mathtools)")
         (@arg PACKAGES: -p --packages [PACKAGE] ... +takes_value "Packages to load")
         (@arg COMMANDS: <COMMAND> ... "Commands to show definitions of")
