@@ -53,7 +53,11 @@ fn main() -> Result<(), RunError> {
                         Black.bold().paint(" -> ")
                     );
                 }
-                println!("{}", cmd.definition);
+                if let Some(pp) = PrettyPrinter::new(&cmd.definition) {
+                    println!("{}", pp);
+                } else {
+                    println!("{}", &cmd.definition);
+                }
             }
         } else {
             let name = Yellow.paint(&cmd.name);
