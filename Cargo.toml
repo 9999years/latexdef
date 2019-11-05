@@ -1,6 +1,6 @@
 [package]
 name = "latexdef"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Rebecca Turner <rbt@sent.as>"]
 license = "LPPL-1.3c"
 description = "A command-line tool which shows the definitions of LaTeX commands."
