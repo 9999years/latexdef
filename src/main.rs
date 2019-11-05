@@ -9,7 +9,7 @@ use latexdef::run::{LatexJob, RunError};
 
 fn clap<'a, 'b>() -> App<'a, 'b> {
     clap_app!(latexdef =>
-        (version: "0.4.1")
+        (version: "0.4.2")
         (author: "Rebecca Turner <rbt@sent.as>")
         (about: "Prints definitions of LaTeX macros.")
         (@arg VERBOSE: --verbose "Print verbose output")
