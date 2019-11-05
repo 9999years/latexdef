@@ -3,7 +3,7 @@ use std::process::ExitStatus;
 use std::str::Lines;
 use std::string::FromUtf8Error;
 
-use ansi_term::{Color::Black, Style as TermStyle};
+use ansi_term::Color::Black;
 use lazy_static::lazy_static;
 use quick_error::quick_error;
 use regex::Regex;

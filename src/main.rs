@@ -5,7 +5,6 @@ use ansi_term::{
 use clap::{clap_app, App};
 
 use latexdef::document::DocumentConfig;
-use latexdef::pretty_print::PrettyPrinter;
 use latexdef::run::{LatexJob, RunError};
 
 fn clap<'a, 'b>() -> App<'a, 'b> {
